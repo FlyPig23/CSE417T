@@ -1,0 +1,205 @@
+\documentclass{article}
+\usepackage[margin = 0.5in]{geometry}
+\usepackage{amsfonts, setspace, graphicx, amsmath, bbm, enumerate}
+\graphicspath{{./images/}}
+\begin{document}
+    \onehalfspacing
+
+    \begin{singlespace}
+        \title{CSE 417T: Homework 3} 
+        \author{Hangxiao Zhu}
+        \date{\today}
+        \maketitle
+    \end{singlespace}
+
+    \section*{Problem 1.}
+    (a) By definition of the weight decay regularizer, we have
+    \begin{align*}
+        E_{aug}(\overset{\to}{w}) & = E_{in}(\overset{\to}{w}) + \lambda \overset{\to}{w^T} \overset{\to}{w}
+    \end{align*}
+    After taking derivative with respect to $\overset{\to}{w}$, we have
+    \begin{align*}
+        \nabla E_{aug}(\overset{\to}{w}) & = \nabla E_{in}(\overset{\to}{w}) + 2\lambda \overset{\to}{w}
+    \end{align*}
+    Therefore, the update rule can be written as
+    \begin{align*}
+        \overset{\to}{w}(t+1) & = \overset{\to}{w}(t) - \eta \nabla E_{aug}(\overset{\to}{w}(t))\\
+        & = \overset{\to}{w}(t) - \eta (\nabla E_{in}(\overset{\to}{w}(t)) + 2\lambda \overset{\to}{w}(t))\\
+        & = (1 - 2 \eta \lambda)\overset{\to}{w}(t) - \eta \nabla E_{in}(\overset{\to}{w}(t))
+    \end{align*}
+    (b) By definition of the $L_1$ regularizer, we have
+    \begin{align*}
+        E_{aug}(\overset{\to}{w}) & = E_{in}(\overset{\to}{w}) + \lambda ||\overset{\to}{w}||_1
+    \end{align*}
+    Since the gradient of 1-norm is not well-defined at 0, we define a $sign()$ function to address this issue
+    \begin{align*}
+        \frac{\partial}{\partial w_i}||\overset{\to}{w}||_1 = sign(w_i) = 
+        \begin{cases}
+            +1 & \text{if} \ w_i > 0\\
+            0 & \text{if} \ w_i = 0\\
+            -1 & \text{if} \ w_i < 0
+        \end{cases}
+    \end{align*}
+    After taking derivative of the $L_1$ regularizer with respect to $\overset{\to}{w}$, we have
+    \begin{align*}
+        \nabla E_{aug}(\overset{\to}{w}) & = \nabla E_{in}(\overset{\to}{w}) + \lambda \sum_{i=0}^{d} sign(w_i)
+    \end{align*}
+    Therefore, the update rule can be written as
+    \begin{align*}
+        \overset{\to}{w}(t+1) & = \overset{\to}{w}(t) - \eta \nabla E_{aug}(\overset{\to}{w}(t))\\
+        & = \overset{\to}{w}(t) - \eta (\nabla E_{in}(\overset{\to}{w}(t)) + \lambda \sum_{i=0}^{d} sign(w_i(t)))
+    \end{align*}
+    (c) Report on each of the $\lambda$ for both $L_1$ abd $L_2$ regularizations:
+    \begin{center}
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            Regularizer & $\lambda$ & Classification error on test set & Number of 0s in $w$\\
+            \hline
+            L1 & 0 & 0.102803738317757 & 8\\
+            \hline
+            L1 & 0.0001 & 0.09813084112149532 & 8\\
+            \hline
+            L1 & 0.001 & 0.09345794392523364 & 15\\
+            \hline
+            L1 & 0.005 & 0.08878504672897196 & 26\\
+            \hline
+            L1 & 0.01 & 0.0794392523364486 & 36\\
+            \hline
+            L1 & 0.05 & 0.102803738317757 & 52\\
+            \hline
+            L1 & 0.1 & 0.13551401869158877 & 57\\
+            \hline
+            L2 & 0 & 0.102803738317757 & 8\\
+            \hline
+            L2 & 0.0001 & 0.102803738317757 & 8\\
+            \hline
+            L2 & 0.001 & 0.09345794392523364 & 8\\
+            \hline
+            L2 & 0.005 & 0.09813084112149532 & 8\\
+            \hline
+            L2 & 0.01 & 0.09813084112149532 & 8\\
+            \hline
+            L2 & 0.05 & 0.11682242990654206 & 8\\
+            \hline
+            L2 & 0.1 & 0.12149532710280374 & 8\\
+            \hline
+        \end{tabular}
+    \end{center}
+    Observations based on the results:
+    \begin{itemize}
+        \item For both regularizations, the classification error decreases and then increases as $\lambda$ 
+        increases. For $L_1$ regularization, the classification error is smallest when $\lambda$ is around 0.1, 
+        for $L_2$ regularization, the classification error is smallest when $\lambda$ is around 0.001.
+        \item For $L_1$ regularization, the number of zeros in the learned $w$ increases as $\lambda$ increases,
+        for $L_2$ regularization, the number of zeros in the learned $w$ keeps the same as $\lambda$ increases.
+    \end{itemize}
+    Properties of the $L_1$ regularizer:
+    \begin{itemize}
+        \item The number of zeros in the learned $w$ increases as $\lambda$ increases.
+        \item $L_1$ regularizer helps us discard variables with coefficient zero, so it is useful for feature 
+        selection.
+    \end{itemize}
+
+    \section*{Problem 2.}
+    \def\A{
+        \begin{bmatrix}
+            1 \\
+            1 \\
+            \vdots \\
+            1 \\
+        \end{bmatrix}
+    }
+    \def\B{
+        \begin{bmatrix}
+            1 & 1 & \cdots & 1
+        \end{bmatrix}
+    }
+    (a) By definition, we have 
+    $\overset{\to}{w^T} \overset{\to}{\Gamma^T} \overset{\to}{\Gamma} \overset{\to}{w} \leq C$.
+    Since $\sum_{q=0}^{Q}w_q^2 = \overset{\to}{w^T} \overset{\to}{w} \leq C$, we have 
+    $\overset{\to}{w^T} \overset{\to}{\Gamma^T} \overset{\to}{\Gamma} \overset{\to}{w} = 
+    \overset{\to}{w^T} \overset{\to}{w}$. Therefore, 
+    $\overset{\to}{\Gamma^T} \overset{\to}{\Gamma} = \overset{\to}{I}$. Thus 
+    $\overset{\to}{\Gamma} = \overset{\to}{I}$.\\
+    (b)By definition, we have 
+    $\overset{\to}{w^T} \overset{\to}{\Gamma^T} \overset{\to}{\Gamma} \overset{\to}{w} \leq C$.
+    Since $(\sum_{q=0}^{Q}w_q)^2 = \overset{\to}{w^T} \A \B \overset{\to}{w} \leq C$, we have
+    $\overset{\to}{w^T} \overset{\to}{\Gamma^T} \overset{\to}{\Gamma} \overset{\to}{w} =
+    \overset{\to}{w^T} \A \B \overset{\to}{w}$. Therefore, $\overset{\to}{\Gamma^T} \overset{\to}{\Gamma} =
+    \A \B$. Thus, $\overset{\to}{\Gamma} = \B$.
+
+    \section*{Problem 3.}
+    (a) We should not select the learner with minimum validation error. Based on the VC bound equation
+    \begin{align*}
+        E_{out}(g_{m^*}^-) \leq E_{val}(g_{m^*}^-) + O(\sqrt{\frac{\ln M}{2K}})
+    \end{align*}
+    we know that the bound is not only depending on $E_{val}(g_{m^*}^-)$, but also depending on 
+    $O(\sqrt{\frac{\ln M}{2K}})$. For $M$ learners, each learner leads to a unique $O(\sqrt{\frac{\ln M}{2K}})$ 
+    value because each learner $m$ has a unique size of their validation set $K_m$. Therefore, a learner has the 
+    smallest $E_{val}(g_{m^*}^-$) does not necessarily mean this learner also has the smallest sum of 
+    $E_{val}(g_{m^*}^-) + O(\sqrt{\frac{\ln M}{2K}})$. Thus, the learner with minimum validation error might not 
+    generate the tightest VC bound.\\
+    (b) Because when all models are validated on the same validation set, each learner will have the same 
+    $O(\sqrt{\frac{\ln M}{2K}})$. Therefore, the learner with the smallest $E_{val}(g_{m^*}^-$) is guaranteed to 
+    have the smallest sum of $E_{val}(g_{m^*}^-) + O(\sqrt{\frac{\ln M}{2K}})$. Thus, the learner with minimum
+    validation error will generate the tightest VC bound.\\
+    (c) According to Hoeffding's Inequality, for each $m$ we have
+    \begin{align*}
+        \mathbb{P}[|E_{out}(m) - E_{val}(m)| > \epsilon] & \leq 2e^{-2 \epsilon^2 K_m}\\
+        \Rightarrow \mathbb{P}[E_{out}(m) - E_{val}(m) > \epsilon] & \leq e^{-2 \epsilon^2 K_m}\\
+        \Rightarrow \mathbb{P}[E_{out}(m) > E_{val}(m) + \epsilon] & \leq e^{-2 \epsilon^2 K_m}
+    \end{align*}
+    Since
+    \begin{align*}
+        \mathbb{P}[E_{out}(m^*) > E_{val}(m^*) + \epsilon] & 
+        \leq \mathbb{P}[(E_{out}(m_1) > E_{val}(m_1) + \epsilon) \\
+        & \qquad \text{or} \ (E_{out}(m_2) > E_{val}(m_2) + \epsilon) \\
+        & \qquad \text{or} \ \cdots \\
+        & \qquad \text{or} \ (E_{out}(m_M) > E_{val}(m_M)]\\
+        & \leq \mathbb{P}[E_{out}(m_1) > E_{val}(m_1) + \epsilon]\\
+        & \quad + \mathbb{P}[E_{out}(m_2) > E_{val}(m_2) + \epsilon]\\
+        & \quad + \cdots\\
+        & \quad + \mathbb{P}[E_{out}(m_M) > E_{val}(m_M) + \epsilon]\\
+        & \leq \sum_{m=1}^{M} e^{-2 \epsilon^2 K_m}
+    \end{align*}
+    Since we have the average validation set size
+    \begin{align*}
+        \kappa(\epsilon) = 
+        -\frac{1}{2 \epsilon^2} \ln(\frac{1}{M} \sum_{m=1}^{M} e^{-2 \epsilon^2 K_m})
+    \end{align*}
+    We can deduce that 
+    \begin{align*}
+        M e^{-2 \epsilon^2 \kappa(\epsilon)} & = M e^{\ln(\frac{1}{M} \sum_{m=1}^{M} e^{-2 \epsilon^2 K_m})}\\
+        & = M \frac{\sum_{m=1}^{M} e^{-2 \epsilon^2 K_m}}{M}\\
+        & = \sum_{m=1}^{M} e^{-2 \epsilon^2 K_m}
+    \end{align*}
+    Therefore, we have 
+    \begin{align*}
+        \mathbb{P}[E_{out}(m^*) > E_{val}(m^*) + \epsilon] \leq M e^{-2 \epsilon^2 \kappa(\epsilon)}
+    \end{align*}
+
+    \section*{Problem 4.}
+    (a)According to Hoeffding's Inequality, we have 
+    \begin{align*}
+        \mathbb{P}[|E_{out} - E_{in}| > \epsilon] & \leq 2M e^{-2 \epsilon^2 N}\\
+        \Rightarrow \mathbb{P}[|E_{in} - E_{out}| > \epsilon] & \leq 2M e^{-2 \epsilon^2 N}
+    \end{align*}
+    \begin{enumerate}[i]
+        \item The problem here is data snooping. Since we are using 50 years of data, and the S\&P 500 stocks were 
+        selected by looking at the whole data set, when we use $M = 500$ to decide whether the stock we picked is 
+        profitable, we are actually underestimate the $M$.
+        \item According to (i), we should use $M = 50000$ to do the estimation. Using the hoeddfing bound, we have
+        \begin{align*}
+            \mathbb{P}[|E_{in} - E_{out}| > 0.02] \leq 2 \times 50000 \times e^{-2 \times 12500 \times 0.02^2}
+            \approx 4.54
+        \end{align*}
+    \end{enumerate}
+    (b)
+    \begin{enumerate}[i]
+        \item The problem here is data snooping. Since we are using 50 years of data, and the S\&P 500 stocks were 
+        selected by looking at the whole data set, we cannot generalize this conclusion to the entire data set.
+        \item Since our analysis of the performance of buy and hold trading is only based on today's S\&P 500 stocks,
+        we can say that in practice, the performance of 'buy and hold' strategy will be worse than our estimation.
+    \end{enumerate}
+
+\end{document}
